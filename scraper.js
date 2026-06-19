@@ -58,7 +58,7 @@ function launchChrome() {
     process.exit(1);
   }
 
-  console.log("🚀 Launching Chrome independently...");
+  console.log("Launching Chrome independently...");
 
   // spawn with detached:true so Chrome is its own process group
   const chrome = spawn(
@@ -76,7 +76,7 @@ function launchChrome() {
   );
 
   chrome.unref(); // 👈 key — Node won't wait for Chrome to exit
-  console.log(`✅ Chrome launched on port ${DEBUG_PORT}`);
+  console.log(`Chrome launched on port ${DEBUG_PORT}`);
 }
 
 // ------------------------
@@ -103,11 +103,11 @@ async function start() {
   launchChrome();
 
   // Step 2 — wait for Chrome to be ready
-  console.log("⏳ Waiting 5 seconds for Chrome to start...");
+  console.log("Waiting 5 seconds for Chrome to start...");
   await sleep(5000);
 
   // Step 3 — connect to it via CDP (we don't own the process)
-  console.log("🔗 Connecting to Chrome via CDP...");
+  console.log("Connecting to Chrome via CDP...");
   const browser = await puppeteer.connect({
     browserURL: `http://127.0.0.1:${DEBUG_PORT}`,
     defaultViewport: null
@@ -116,7 +116,7 @@ async function start() {
   const pages = await browser.pages();
   const page = pages[0] || await browser.newPage();
 
-  console.log("✅ Connected to Chrome.");
+  console.log("Connected to Chrome.");
 
   // No special SIGINT handler needed — since we used connect() not launch(),
   // Node has no handle on Chrome. Ctrl+C kills Node, Chrome stays open.
@@ -125,22 +125,22 @@ async function start() {
   if (fs.existsSync(COOKIE_PATH)) {
     const cookies = JSON.parse(fs.readFileSync(COOKIE_PATH, "utf8"));
     await page.setCookie(...cookies);
-    console.log("✅ Loaded saved cookies.");
+    console.log("Loaded saved cookies.");
   }
 
   await page.goto("https://www.reddit.com/");
-  console.log("🌍 Opened Reddit homepage.");
+  console.log("Opened Reddit homepage.");
 
-  console.log("⏳ Waiting 20 seconds for login (first run)...");
+  console.log("Waiting 20 seconds for login (first run)...");
   await sleep(20000);
 
   const cookies = await page.cookies();
   fs.writeFileSync(COOKIE_PATH, JSON.stringify(cookies, null, 2));
-  console.log("💾 Cookies saved.");
+  console.log("Cookies saved.");
 
   for (const sub of subreddits) {
     console.log(`\n===============================`);
-    console.log(`🎯 Working on: ${sub}`);
+    console.log(`Working on: ${sub}`);
     console.log(`===============================\n`);
 
     await sleep(randomDelay());
@@ -151,12 +151,12 @@ async function start() {
     await autoSave(page, sub);
     await sleep(randomDelay() + 2000);
 
-    console.log("🕒 Taking a short break before next subreddit...");
+    console.log("Taking a short break before next subreddit...");
     await sleep(10000 + Math.random() * 15000);
   }
 
-  console.log("\n🎉 COMPLETED FULL SESSION!");
-  console.log("🖥️  Browser stays open — close it manually when done.");
+  console.log("\n COMPLETED FULL SESSION!");
+  console.log(" Browser stays open — close it manually when done.");
 
   // Just exit Node — Chrome keeps running since we never owned it
   process.exit(0);
@@ -201,7 +201,7 @@ async function autoUpvote(page, subredditUrl, limit) {
 // Auto-save function
 // ------------------------
 async function autoSave(page, subredditUrl) {
-  console.log("🔖 Saving one post...");
+  console.log("Saving one post...");
 
   await page.goto(subredditUrl);
   await sleep(randomDelay());
@@ -222,7 +222,7 @@ async function autoSave(page, subredditUrl) {
     }
   }
 
-  console.log("❌ No saveable post found.");
+  console.log(" No saveable post found.");
 }
 
 start();
